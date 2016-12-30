@@ -11,4 +11,4 @@ cp src/styles.css dist/styles.css
 
 # Then we run r.js - the main.js file contains all the
 # configuration we need
-r.js -o mainConfigFile=src/js/main.js
+../node_modules/requirejs/bin/r.js -o mainConfigFile=src/js/main.js
