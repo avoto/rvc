@@ -5,18 +5,20 @@ var commonjs = require( 'rollup-plugin-commonjs' )
 
 module.exports = gobble( 'src' )
 
-	.transform( 'rollup', 	{
-			plugins: [resolve({
-				module: true,
-				jsnext: true,
-				main: true,
-				browser: true,
-				skip:['ractive']
-			}), commonjs()],
+	.transform( 'rollup', {
+			plugins: [
+				resolve({
+					module: true,
+					jsnext: true,
+					main: true,
+					browser: true,
+					skip:['ractive']
+				}),
+				commonjs()
+			],
 			entry: 'rvc.js',
 			dest: 'rvc.js',
 			format: 'amd',
 			moduleName: 'rvc',
 			external: [ 'ractive' ]
-		});
-	//
+	});
