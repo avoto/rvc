@@ -939,19 +939,18 @@ function resolvePath ( relativePath, base ) {
   MIT License: https://github.com/guybedford/amd-loader/blob/master/LICENSE
 */
 
-var loader$1 = function(pluginId, ext, allowExts, compile) {
+var loader$1 = function loader$1(pluginId, ext, allowExts, compile) {
   if (arguments.length == 3) {
     compile = allowExts;
     allowExts = undefined;
-  }
-  else if (arguments.length == 2) {
+  } else if (arguments.length == 2) {
     compile = ext;
     ext = allowExts = undefined;
   }
 
   return {
     buildCache: {},
-    load: function(name, req, load, config) {
+    load: function load(name, req, _load, config) {
       var path = req.toUrl(name);
       var queryString = '';
       if (path.indexOf('?') != -1) {
@@ -961,52 +960,40 @@ var loader$1 = function(pluginId, ext, allowExts, compile) {
 
       // precompiled -> load from .ext.js extension
       if (config.precompiled instanceof Array) {
-        for (var i = 0; i < config.precompiled.length; i++)
-          if (path.substr(0, config.precompiled[i].length) == config.precompiled[i])
-            return require([path + '.' + pluginId + '.js' + queryString], load, load.error);
-      }
-      else if (config.precompiled === true)
-        return require([path + '.' + pluginId + '.js' + queryString], load, load.error);
+        for (var i = 0; i < config.precompiled.length; i++) {
+          if (path.substr(0, config.precompiled[i].length) == config.precompiled[i]) return require([path + '.' + pluginId + '.js' + queryString], _load, _load.error);
+        }
+      } else if (config.precompiled === true) return require([path + '.' + pluginId + '.js' + queryString], _load, _load.error);
 
       // only add extension if a moduleID not a path
       if (ext && name.substr(0, 1) != '/' && !name.match(/:\/\//)) {
         var validExt = false;
         if (allowExts) {
           for (var i = 0; i < allowExts.length; i++) {
-            if (name.substr(name.length - allowExts[i].length - 1) == '.' + allowExts[i])
-              validExt = true;
+            if (name.substr(name.length - allowExts[i].length - 1) == '.' + allowExts[i]) validExt = true;
           }
         }
-        if (!validExt)
-          path += '.' + ext + queryString;
-        else
-          path += queryString;
-      }
-      else {
+        if (!validExt) path += '.' + ext + queryString;else path += queryString;
+      } else {
         path += queryString;
       }
 
-
       var self = this;
 
-      loader$1.fetch(path, function(source) {
-        compile(name, source, req, function(compiled) {
+      loader$1.fetch(path, function (source) {
+        compile(name, source, req, function (compiled) {
           if (typeof compiled == 'string') {
-            if (config.isBuild)
-              self.buildCache[name] = compiled;
-            load.fromText(compiled);
-          }
-          else
-            load(compiled);
-        }, load.error, config);
-      }, load.error);
+            if (config.isBuild) self.buildCache[name] = compiled;
+            _load.fromText(compiled);
+          } else _load(compiled);
+        }, _load.error, config);
+      }, _load.error);
     },
-    write: function(pluginName, moduleName, write) {
+    write: function write(pluginName, moduleName, _write) {
       var compiled = this.buildCache[moduleName];
-      if (compiled)
-        write.asModule(pluginName + '!' + moduleName, compiled);
+      if (compiled) _write.asModule(pluginName + '!' + moduleName, compiled);
     },
-    writeFile: function(pluginName, name, req, write) {
+    writeFile: function writeFile(pluginName, name, req, write) {
       write.asModule(pluginName + '!' + name, req.toUrl(name + '.' + pluginId + '.js'), this.buildCache[name]);
     }
   };
@@ -1018,31 +1005,27 @@ var loader$1 = function(pluginId, ext, allowExts, compile) {
 
 if (typeof window != 'undefined') {
   var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
-  var getXhr = function(path) {
+  var getXhr = function getXhr(path) {
     // check if same domain
     var sameDomain = true,
-      domainCheck = /^(\w+:)?\/\/([^\/]+)/.exec(path);
+        domainCheck = /^(\w+:)?\/\/([^\/]+)/.exec(path);
     if (typeof window != 'undefined' && domainCheck) {
       sameDomain = domainCheck[2] === window.location.host;
-      if (domainCheck[1])
-        sameDomain &= domainCheck[1] === window.location.protocol;
+      if (domainCheck[1]) sameDomain &= domainCheck[1] === window.location.protocol;
     }
 
     // create xhr
     var xhr;
-    if (typeof XMLHttpRequest !== 'undefined')
-      xhr = new XMLHttpRequest();
-    else {
+    if (typeof XMLHttpRequest !== 'undefined') xhr = new XMLHttpRequest();else {
       var progId;
       for (var i = 0; i < 3; i += 1) {
         progId = progIds[i];
         try {
           xhr = new ActiveXObject(progId);
-        }
-        catch (e) {}
+        } catch (e) {}
 
         if (xhr) {
-          progIds = [progId];  // so faster next time
+          progIds = [progId]; // so faster next time
           break;
         }
       }
@@ -1050,14 +1033,10 @@ if (typeof window != 'undefined') {
 
     // use cors if necessary
     if (!sameDomain) {
-      if (typeof XDomainRequest != 'undefined')
-        xhr = new XDomainRequest();
-      else if (!('withCredentials' in xhr))
-        throw new Error('getXhr(): Cross Origin XHR not supported.');
+      if (typeof XDomainRequest != 'undefined') xhr = new XDomainRequest();else if (!('withCredentials' in xhr)) throw new Error('getXhr(): Cross Origin XHR not supported.');
     }
 
-    if (!xhr)
-      throw new Error('getXhr(): XMLHttpRequest not available');
+    if (!xhr) throw new Error('getXhr(): XMLHttpRequest not available');
 
     return xhr;
   };
@@ -1067,7 +1046,7 @@ if (typeof window != 'undefined') {
     var xhr = getXhr(url);
 
     xhr.open('GET', url, !requirejs.inlineRequire);
-    xhr.onreadystatechange = function(evt) {
+    xhr.onreadystatechange = function (evt) {
       var status, err;
       //Do not explicitly handle errors, those should be
       //visible via console output in the browser.
@@ -1076,33 +1055,29 @@ if (typeof window != 'undefined') {
         if (status > 399 && status < 600) {
           err = new Error(url + ' HTTP status: ' + status);
           err.xhr = xhr;
-          if (errback)
-            errback(err);
-        }
-        else {
-          if (xhr.responseText == '')
-            return errback(new Error(url + ' empty response'));
+          if (errback) errback(err);
+        } else {
+          if (xhr.responseText == '') return errback(new Error(url + ' empty response'));
           callback(xhr.responseText);
         }
       }
     };
     xhr.send(null);
   };
-}
-else if (typeof process !== 'undefined' && process.versions && !!process.versions.node) {
+} else if (typeof process !== 'undefined' && process.versions && !!process.versions.node) {
   var fs = requirejs.nodeRequire('fs');
-  loader$1.fetch = function(path, callback) {
+  loader$1.fetch = function (path, callback) {
     callback(fs.readFileSync(path, 'utf8'));
   };
-}
-else if (typeof Packages !== 'undefined') {
-  loader$1.fetch = function(path, callback, errback) {
-    var stringBuffer, line,
-      encoding = 'utf-8',
-      file = new java.io.File(path),
-      lineSeparator = java.lang.System.getProperty('line.separator'),
-      input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-      content = '';
+} else if (typeof Packages !== 'undefined') {
+  loader$1.fetch = function (path, callback, errback) {
+    var stringBuffer,
+        line,
+        encoding = 'utf-8',
+        file = new java.io.File(path),
+        lineSeparator = java.lang.System.getProperty('line.separator'),
+        input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+        content = '';
     try {
       stringBuffer = new java.lang.StringBuffer();
       line = input.readLine();
@@ -1127,38 +1102,123 @@ else if (typeof Packages !== 'undefined') {
       }
       //Make sure we return a JavaScript string and not a Java string.
       content = String(stringBuffer.toString()); //String
-    }
-    catch(err) {
-      if (errback)
-        errback(err);
-    }
-    finally {
+    } catch (err) {
+      if (errback) errback(err);
+    } finally {
       input.close();
     }
     callback(content);
   };
-}
-else {
-  loader$1.fetch = function() {
+} else {
+  loader$1.fetch = function () {
     throw new Error('Environment unsupported.');
   };
 }
 
-function load ( base, req, source, callback, errback ) {
-	make( source, {
-		url: `${base}.html`,
-		loadImport ( name, path, baseUrl, callback ) {
-			path = resolvePath( path, base );
-			req([ 'rvc!' + path.replace( /\.html$/, '' ) ], callback );
+function load$1(base, req, source, callback, errback) {
+	make(source, {
+		url: base + '.html',
+		loadImport: function loadImport(name, path, baseUrl, callback) {
+			path = resolvePath(path, base);
+			req(['rvc!' + path.replace(/\.html$/, '')], callback);
 		},
-		loadModule ( name, path, baseUrl, callback ) {
-			req([ path ], callback );
+		loadModule: function loadModule(name, path, baseUrl, callback) {
+			req([path], callback);
 		},
-		require ( name ) {
-			return req( name );
+		require: function require(name) {
+			return req(name);
 		}
-	}, callback, errback );
+	}, callback, errback);
 }
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var get = function get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var set = function set(object, property, value, receiver) {
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent !== null) {
+      set(parent, property, value, receiver);
+    }
+  } else if ("value" in desc && desc.writable) {
+    desc.value = value;
+  } else {
+    var setter = desc.set;
+
+    if (setter !== undefined) {
+      setter.call(receiver, value);
+    }
+  }
+
+  return value;
+};
 
 /*
   toSource
@@ -1166,40 +1226,39 @@ function load ( base, req, source, callback, errback ) {
   zlib license: https://github.com/marcello3d/node-tosource/blob/master/LICENSE
 */
 
-function toSource (object, filter, indent, startingIndent) {
+function toSource(object, filter, indent, startingIndent) {
     var seen = [];
-    return walk(object, filter, indent === undefined ? '  ' : (indent || ''), startingIndent || '', seen);
+    return walk(object, filter, indent === undefined ? '  ' : indent || '', startingIndent || '', seen);
 
     function walk(object, filter, indent, currentIndent, seen) {
         var nextIndent = currentIndent + indent;
         object = filter ? filter(object) : object;
 
-        switch (typeof object) {
+        switch (typeof object === 'undefined' ? 'undefined' : _typeof(object)) {
             case 'string':
                 return JSON.stringify(object);
             case 'boolean':
             case 'number':
             case 'undefined':
-                return ''+object;
+                return '' + object;
             case 'function':
                 return object.toString();
         }
 
         if (object === null) return 'null';
         if (object instanceof RegExp) return object.toString();
-        if (object instanceof Date) return 'new Date('+object.getTime()+')';
-
+        if (object instanceof Date) return 'new Date(' + object.getTime() + ')';
 
         var seenIndex = seen.indexOf(object) + 1;
-        if (seenIndex > 0) return '{$circularReference:'+seenIndex+'}';
+        if (seenIndex > 0) return '{$circularReference:' + seenIndex + '}';
         seen.push(object);
 
         function join(elements) {
-            return indent.slice(1) + elements.join(','+(indent&&'\n')+nextIndent) + (indent ? ' ' : '');
+            return indent.slice(1) + elements.join(',' + (indent && '\n') + nextIndent) + (indent ? ' ' : '');
         }
 
         if (Array.isArray(object)) {
-            return '[' + join(object.map(function(element){
+            return '[' + join(object.map(function (element) {
                 return walk(element, filter, indent, nextIndent, seen.slice());
             })) + ']';
         }
@@ -1213,81 +1272,66 @@ function toSource (object, filter, indent, startingIndent) {
 var KEYWORD_REGEXP = /^(abstract|boolean|break|byte|case|catch|char|class|const|continue|debugger|default|delete|do|double|else|enum|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|undefined|var|void|volatile|while|with)$/;
 
 function legalKey(string) {
-    return /^[a-z_$][0-9a-z_$]*$/gi.test(string) && !KEYWORD_REGEXP.test(string);
+    return (/^[a-z_$][0-9a-z_$]*$/gi.test(string) && !KEYWORD_REGEXP.test(string)
+    );
 }
 
 // TODO more intelligent minification? removing comments?
 // collapsing declarations?
-function minifycss ( css ) {
-	return css.replace( /^\s+/gm, '' );
+function minifycss(css) {
+	return css.replace(/^\s+/gm, '');
 }
 
-function build ( name, source, callback ) {
-	let definition = parse( source );
-	let dependencies = [ 'require', 'ractive' ];
-	let dependencyArgs = [ 'require', 'Ractive' ];
-	let importMap = [];
+function build(name, source, callback) {
+	var definition = parse(source);
+	var dependencies = ['require', 'ractive'];
+	var dependencyArgs = ['require', 'Ractive'];
+	var importMap = [];
 
 	// Add dependencies from <link> tags, i.e. sub-components
-	definition.imports.forEach( ( toImport, i ) => {
-		let href = toImport.href;
-		let name = toImport.name;
+	definition.imports.forEach(function (toImport, i) {
+		var href = toImport.href;
+		var name = toImport.name;
 
-		let argumentName = `_import_${i}`;
+		var argumentName = '_import_' + i;
 
-		dependencies.push( 'rvc!' + href.replace( /\.html$/, '' ) );
-		dependencyArgs.push( argumentName );
+		dependencies.push('rvc!' + href.replace(/\.html$/, ''));
+		dependencyArgs.push(argumentName);
 
-		importMap.push( `"${name}": ${argumentName}` );
+		importMap.push('"' + name + '": ' + argumentName);
 	});
 
 	// Add dependencies from inline require() calls
-	dependencies = dependencies.concat( definition.modules );
+	dependencies = dependencies.concat(definition.modules);
 
-	let options = [
-		`template: ${toSource( definition.template, null, '', '' )}`
-	];
+	var options = ['template: ' + toSource(definition.template, null, '', '')];
 
-	if ( definition.css ) {
-		options.push( `css: ${JSON.stringify( minifycss( definition.css ) )}` );
+	if (definition.css) {
+		options.push('css: ' + JSON.stringify(minifycss(definition.css)));
 	}
 
-	if ( definition.imports.length ) {
-		options.push( `components: {${importMap.join( ',' )}}` );
+	if (definition.imports.length) {
+		options.push('components: {' + importMap.join(',') + '}');
 	}
 
-	let builtModule = `define("rvc!${name}", ${JSON.stringify( dependencies )},function(${dependencyArgs.join( ',' )}){
-	var __options__ = {
-		${options.join(',\n\t\t')}
-	},
-	component = {};`;
+	var builtModule = 'define("rvc!' + name + '", ' + JSON.stringify(dependencies) + ',function(' + dependencyArgs.join(',') + '){\n\tvar __options__ = {\n\t\t' + options.join(',\n\t\t') + '\n\t},\n\tcomponent = {};';
 
-	if ( definition.script ) {
-		builtModule += `
-${definition.script}
-	if ( typeof component.exports === "object" ) {
-		for ( var __prop__ in component.exports ) {
-			if ( component.exports.hasOwnProperty(__prop__) ) {
-				__options__[__prop__] = component.exports[__prop__];
-			}
-		}
-	}
-`;
+	if (definition.script) {
+		builtModule += '\n' + definition.script + '\n\tif ( typeof component.exports === "object" ) {\n\t\tfor ( var __prop__ in component.exports ) {\n\t\t\tif ( component.exports.hasOwnProperty(__prop__) ) {\n\t\t\t\t__options__[__prop__] = component.exports[__prop__];\n\t\t\t}\n\t\t}\n\t}\n';
 	}
 
-	builtModule += `return Ractive.extend(__options__);
-});`;
+	builtModule += 'return Ractive.extend(__options__);\n});';
 
-	callback( builtModule );
+	callback(builtModule);
 }
 
-init( Ractive );
+init(Ractive);
 
-let rvc = loader$1( 'rvc', 'html', ( name, source, req, callback, errback, config ) => {
-	if ( config.isBuild ) {
-		build( name, source, callback, errback );
+var rvc = loader$1('rvc', 'html', function (name, source, req, callback, errback, config) {
+	if (config.isBuild) {
+		build(name, source, callback, errback);
 	} else {
-		load( name, req, source, callback, errback );
+		load$1(name, req, source, callback, errback);
 	}
 });
 
