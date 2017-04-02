@@ -8,6 +8,7 @@ var es2015Rollup = require('babel-preset-es2015-rollup')
 module.exports = gobble( 'src' )
 
 	.transform( 'rollup', {
+            sourceMap: true,
 			plugins: [
 				resolve({
 					module: true,
