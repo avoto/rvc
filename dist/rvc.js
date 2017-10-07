@@ -355,18 +355,18 @@ function find ( str ) {
 			// could be start of regex literal OR division punctuator. Solution via
 			// http://stackoverflow.com/questions/5519596/when-parsing-javascript-what-determines-the-meaning-of-a-slash/27120110#27120110
 			var substr = str.substr( 0, i );
-			if ( keywords.test( substr ) || punctuators.test( substr ) ) regexEnabled = true;
-			else if ( ambiguous.test( substr ) && !tokenClosesExpression( substr, found ) ) regexEnabled = true; // TODO save this determination for when it's necessary?
-			else regexEnabled = false;
+			if ( keywords.test( substr ) || punctuators.test( substr ) ) { regexEnabled = true; }
+			else if ( ambiguous.test( substr ) && !tokenClosesExpression( substr, found ) ) { regexEnabled = true; } // TODO save this determination for when it's necessary?
+			else { regexEnabled = false; }
 
 			return start = i, slash;
 		}
 
-		if ( char === '"' || char === "'" ) return start = i, quote = char, stack.push( base ), string;
-		if ( char === '`' ) return start = i, templateString;
+		if ( char === '"' || char === "'" ) { return start = i, quote = char, stack.push( base ), string; }
+		if ( char === '`' ) { return start = i, templateString; }
 
-		if ( char === '{' ) return stack.push( base ), base;
-		if ( char === '}' ) return start = i, stack.pop();
+		if ( char === '{' ) { return stack.push( base ), base; }
+		if ( char === '}' ) { return start = i, stack.pop(); }
 
 		if ( !( pfixOp && /\W/.test( char ) ) ) {
 			pfixOp = ( char === '+' && str[ i - 1 ] === '+' ) || ( char === '-' && str[ i - 1 ] === '-' );
@@ -375,22 +375,23 @@ function find ( str ) {
 		if ( char === '<' ) {
 			var substr$1 = str.substr( 0, i );
 			substr$1 = _erase( substr$1, found ).trim();
-			if ( beforeJsx.test( substr$1 ) ) return stack.push( base ), jsxTagStart;
+			if ( beforeJsx.test( substr$1 ) ) { return stack.push( base ), jsxTagStart; }
 		}
 
 		return base;
 	}
 
 	function slash ( char ) {
-		if ( char === '/' ) return lineComment;
-		if ( char === '*' ) return blockComment;
-		if ( char === '[' ) return regexEnabled ? regexCharacter : base;
+		if ( char === '/' ) { return lineComment; }
+		if ( char === '*' ) { return blockComment; }
+		if ( char === '[' ) { return regexEnabled ? regexCharacter : base; }
+		if ( char === '\\' ) { return escapedFrom = regex, escaped; }
 		return regexEnabled && !pfixOp ? regex : base;
 	}
 
 	function regex ( char, i ) {
-		if ( char === '[' ) return regexCharacter;
-		if ( char === '\\' ) return escapedFrom = regex, escaped;
+		if ( char === '[' ) { return regexCharacter; }
+		if ( char === '\\' ) { return escapedFrom = regex, escaped; }
 
 		if ( char === '/' ) {
 			var end = i + 1;
@@ -406,13 +407,13 @@ function find ( str ) {
 	}
 
 	function regexCharacter ( char ) {
-		if ( char === ']' ) return regex;
-		if ( char === '\\' ) return escapedFrom = regexCharacter, escaped;
+		if ( char === ']' ) { return regex; }
+		if ( char === '\\' ) { return escapedFrom = regexCharacter, escaped; }
 		return regexCharacter;
 	}
 
 	function string ( char, i ) {
-		if ( char === '\\' ) return escapedFrom = string, escaped;
+		if ( char === '\\' ) { return escapedFrom = string, escaped; }
 		if ( char === quote ) {
 			var end = i + 1;
 			var outer = str.slice( start, end );
@@ -431,8 +432,8 @@ function find ( str ) {
 	}
 
 	function templateString ( char, i ) {
-		if ( char === '$' ) return templateStringDollar;
-		if ( char === '\\' ) return escapedFrom = templateString, escaped;
+		if ( char === '$' ) { return templateStringDollar; }
+		if ( char === '\\' ) { return escapedFrom = templateString, escaped; }
 
 		if ( char === '`' ) {
 			var end = i + 1;
@@ -465,18 +466,18 @@ function find ( str ) {
 	// https://facebook.github.io/jsx/
 
 	function jsxTagStart ( char ) {
-		if ( char === '/' ) return jsxTagDepth--, jsxTag;
+		if ( char === '/' ) { return jsxTagDepth--, jsxTag; }
 		return jsxTagDepth++, jsxTag;
 	}
 
 	function jsxTag ( char, i ) {
-		if ( char === '"' || char === "'" ) return start = i, quote = char, stack.push( jsxTag ), string;
-		if ( char === '{' ) return stack.push( jsxTag ), base;
+		if ( char === '"' || char === "'" ) { return start = i, quote = char, stack.push( jsxTag ), string; }
+		if ( char === '{' ) { return stack.push( jsxTag ), base; }
 		if ( char === '>' ) {
-			if ( jsxTagDepth <= 0 ) return base;
+			if ( jsxTagDepth <= 0 ) { return base; }
 			return jsx;
 		}
-		if ( char === '/' ) return jsxTagSelfClosing;
+		if ( char === '/' ) { return jsxTagSelfClosing; }
 
 		return jsxTag;
 	}
@@ -484,7 +485,7 @@ function find ( str ) {
 	function jsxTagSelfClosing ( char ) {
 		if ( char === '>' ) {
 			jsxTagDepth--;
-			if ( jsxTagDepth <= 0 ) return base;
+			if ( jsxTagDepth <= 0 ) { return base; }
 			return jsx;
 		}
 
@@ -492,8 +493,8 @@ function find ( str ) {
 	}
 
 	function jsx ( char ) {
-		if ( char === '{' ) return stack.push( jsx ), base;
-		if ( char === '<' ) return jsxTagStart;
+		if ( char === '{' ) { return stack.push( jsx ), base; }
+		if ( char === '<' ) { return jsxTagStart; }
 
 		return jsx;
 	}
@@ -512,7 +513,7 @@ function find ( str ) {
 	}
 
 	function blockComment ( char ) {
-		if ( char === '*' ) return blockCommentEnding;
+		if ( char === '*' ) { return blockCommentEnding; }
 		return blockComment;
 	}
 
@@ -532,13 +533,15 @@ function find ( str ) {
 
 	for ( var i = 0; i < str.length; i += 1 ) {
 		if ( !state ) {
-			var ref = getLocation( str, i ), line = ref.line, column = ref.column;
+			var ref = getLocation( str, i );
+			var line = ref.line;
+			var column = ref.column;
 			var before = str.slice( 0, i );
 			var beforeLine = /(^|\n).+$/.exec( before )[0];
 			var after = str.slice( i );
 			var afterLine = /.+(\n|$)/.exec( after )[0];
 
-			var snippet = "" + beforeLine + "" + afterLine + "\n" + (Array( beforeLine.length + 1 ).join( ' ' )) + "^";
+			var snippet = "" + beforeLine + afterLine + "\n" + (Array( beforeLine.length + 1 ).join( ' ' )) + "^";
 
 			throw new Error( ("Unexpected character (" + line + ":" + column + "). If this is valid JavaScript, it's probably a bug in tippex. Please raise an issue at https://github.com/Rich-Harris/tippex/issues – thanks!\n\n" + snippet) );
 		}
@@ -553,7 +556,7 @@ function tokenClosesExpression ( substr, found ) {
 	substr = _erase( substr, found );
 
 	var token = ambiguous.exec( substr );
-	if ( token ) token = token[1];
+	if ( token ) { token = token[1]; }
 
 	if ( token === ')' ) {
 		var count = 0;
@@ -573,8 +576,8 @@ function tokenClosesExpression ( substr, found ) {
 		}
 
 		// if parenthesized expression is immediately preceded by `if`/`while`, it's not closing an expression
-		while ( /\s/.test( substr[i - 1] ) ) i -= 1;
-		if ( substr.slice( i - 2, i ) === 'if' || substr.slice( i - 5, i ) === 'while' ) return false;
+		while ( /\s/.test( substr[i - 1] ) ) { i -= 1; }
+		if ( substr.slice( i - 2, i ) === 'if' || substr.slice( i - 5, i ) === 'while' ) { return false; }
 	}
 
 	// TODO handle }, ++ and -- tokens immediately followed by / character
@@ -583,17 +586,17 @@ function tokenClosesExpression ( substr, found ) {
 
 function spaces ( count ) {
 	var spaces = '';
-	while ( count-- ) spaces += ' ';
+	while ( count-- ) { spaces += ' '; }
 	return spaces;
 }
 
 var erasers = {
-	string: function ( chunk ) { return chunk.outer[0] + spaces( chunk.inner.length ) + chunk.outer[0]; },
-	line: function ( chunk ) { return spaces( chunk.outer.length ); },
-	block: function ( chunk ) { return chunk.outer.split( '\n' ).map( function ( line ) { return spaces( line.length ); } ).join( '\n' ); },
-	regex: function ( chunk ) { return '/' + spaces( chunk.inner.length ) + '/'; },
-	templateChunk: function ( chunk ) { return chunk.outer[0] + spaces( chunk.inner.length ) + '${'; },
-	templateEnd: function ( chunk ) { return chunk.outer[0] + spaces( chunk.inner.length ) + '`'; }
+	string: function (chunk) { return chunk.outer[0] + spaces( chunk.inner.length ) + chunk.outer[0]; },
+	line: function (chunk) { return spaces( chunk.outer.length ); },
+	block: function (chunk) { return chunk.outer.split( '\n' ).map( function (line) { return spaces( line.length ); } ).join( '\n' ); },
+	regex: function (chunk) { return '/' + spaces( chunk.inner.length ) + '/'; },
+	templateChunk: function (chunk) { return chunk.outer[0] + spaces( chunk.inner.length ) + '${'; },
+	templateEnd: function (chunk) { return chunk.outer[0] + spaces( chunk.inner.length ) + '`'; }
 };
 
 function _erase ( str, found ) {
@@ -615,17 +618,17 @@ function _erase ( str, found ) {
 function makeGlobalRegExp ( original ) {
 	var flags = 'g';
 
-	if ( original.multiline ) flags += 'm';
-	if ( original.ignoreCase ) flags += 'i';
-	if ( original.sticky ) flags += 'y';
-	if ( original.unicode ) flags += 'u';
+	if ( original.multiline ) { flags += 'm'; }
+	if ( original.ignoreCase ) { flags += 'i'; }
+	if ( original.sticky ) { flags += 'y'; }
+	if ( original.unicode ) { flags += 'u'; }
 
 	return new RegExp( original.source, flags );
 }
 
 function match ( str, pattern, callback ) {
 	var g = pattern.global;
-	if ( !g ) pattern = makeGlobalRegExp( pattern );
+	if ( !g ) { pattern = makeGlobalRegExp( pattern ); }
 
 	var found = find( str );
 
@@ -633,7 +636,7 @@ function match ( str, pattern, callback ) {
 	var chunkIndex = 0;
 
 	while ( match = pattern.exec( str ) ) {
-		var chunk;
+		var chunk = (void 0);
 
 		do {
 			chunk = found[ chunkIndex ];
@@ -648,7 +651,7 @@ function match ( str, pattern, callback ) {
 		if ( !chunk || chunk.start > match.index ) {
 			var args = [].slice.call( match ).concat( match.index, str );
 			callback.apply( null, args );
-			if ( !g ) break;
+			if ( !g ) { break; }
 		}
 	}
 }
@@ -687,16 +690,15 @@ function getLinePosition ( lines, char ) {
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 4;
 
-function parse ( source ) {
+function parse ( source, parseOptions, typeAttrs ) {
 	if ( !Ractive$1 ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	var parsed = Ractive$1.parse( source, {
+	var parsed = Ractive$1.parse( source, Object.assign( {
 		noStringify: true,
-		interpolate: { script: false, style: false },
-		includeLinePositions: true
-	});
+		interpolate: { script: false, style: false }
+	}, parseOptions || {}, { includeLinePositions: true } ) );
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
 		console.warn( ("Mismatched template version (expected " + TEMPLATE_VERSION + ", got " + (parsed.v) + ")! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app") ); // eslint-disable-line no-console
@@ -722,14 +724,14 @@ function parse ( source ) {
 			}
 
 			attr = getAttr( 'type', item );
-			if ( item.e === 'script' && ( !attr || attr === 'text/javascript' ) ) {
+			if ( item.e === 'script' && ( !attr || attr === ( typeAttrs && typeAttrs.js ? typeAttrs.js : 'text/javascript' ) ) ) {
 				if ( scriptItem ) {
 					throw new Error( 'You can only have one <script> tag per component file' );
 				}
 				scriptItem = template.splice( i, 1 )[0];
 			}
 
-			if ( item.e === 'style' && ( !attr || attr === 'text/css' ) ) {
+			if ( item.e === 'style' && ( !attr || attr === ( typeAttrs && typeAttrs.css ? typeAttrs.css : 'text/css' ) ) ) {
 				styles.push( template.splice( i, 1 )[0] );
 			}
 		}
@@ -784,6 +786,24 @@ function parse ( source ) {
 		});
 	}
 
+	// remove line positions to reduce the size
+	if ( parseOptions && parseOptions.includeLinePositions === false ) {
+		var clean = function ( value ) {
+			if ( !value || typeof value !== 'object' ) {
+				return value;
+			}
+
+			if ( Object.prototype.hasOwnProperty.call( value, 'p' ) && Array.isArray( value.p ) && !value.p.filter( function ( n ) { return !Number.isInteger( n ); } ).length ) {
+				delete value.p;
+			}
+
+			Object.keys( value ).forEach( function ( key ) { return clean( value[key] ); } );
+			return value;
+		};
+
+		clean( result );
+	}
+
 	return result;
 }
 
@@ -808,8 +828,10 @@ function make ( source, config, callback, errback ) {
 	var url        = config.url || '';
 	var loadImport = config.loadImport;
 	var loadModule = config.loadModule;
+	var parseOptions = config.parseOptions;
+	var typeAttrs = config.typeAttrs;
 
-	var definition = parse( source );
+	var definition = parse( source, parseOptions, typeAttrs );
 
 	var imports = {};
 
