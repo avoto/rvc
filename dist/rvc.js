@@ -835,11 +835,31 @@ function make ( source, config, callback, errback ) {
 
 	var imports = {};
 
+	function cssContainsRactiveDelimiters (cssDefinition) {
+		//TODO: this can use Ractive's default delimiter definitions, and perhaps a single REGEX for match
+		return cssDefinition
+            && cssDefinition.indexOf('{{') !== -1
+            && cssDefinition.indexOf('}}') !== -1;
+	}
+
+	function determineCss (cssDefinition) {
+		if (cssContainsRactiveDelimiters(cssDefinition)) {
+			return function (d) {
+				return Ractive$1({
+					template: definition.css,
+					data: d()
+				}).fragment.toString(false);
+			};
+		} else {
+			return definition.css;
+		}
+	}
+
 	function createComponent () {
 		var options = {
 			template: definition.template,
 			partials: definition.partials,
-			css: definition.css,
+			css: determineCss(definition.css),
 			components: imports
 		};
 

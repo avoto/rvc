@@ -1,6 +1,6 @@
 {
   "name": "rvc",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "RequireJS plugin to load and optimise Ractive components",
   "main": "dist/rvc.js",
   "repository": {
@@ -26,7 +26,7 @@
     "gobble-rollup": "^0.36.0",
     "gobble-rollup-babel": "^0.6.1",
     "mocha": "^3.2.0",
-    "rcu": "0.10.3",
+    "rcu": "../rcu",
     "requirejs": "2.3.2",
     "resolve": "1.2.0",
     "rollup-plugin-babel": "^2.7.1",
