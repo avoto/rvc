@@ -4,7 +4,7 @@
   MIT License: https://github.com/guybedford/amd-loader/blob/master/LICENSE
 */
 
-var loader = function(pluginId, ext, allowExts, compile) {
+var loader = function(pluginId, ext, allowExts, compile, config) {
   if (arguments.length == 3) {
     compile = allowExts;
     allowExts = undefined;
@@ -17,7 +17,7 @@ var loader = function(pluginId, ext, allowExts, compile) {
   return {
     buildCache: {},
     load: function(name, req, load, config) {
-      var path = req.toUrl(name);
+      var path = req.toUrl(name) + ( config.versionSuffix? config.versionSuffix : '' );
       var queryString = '';
       if (path.indexOf('?') != -1) {
         queryString = path.substr(path.indexOf('?'));

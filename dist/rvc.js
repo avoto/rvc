@@ -695,6 +695,7 @@ function parse ( source, parseOptions, typeAttrs ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
+
 	var fromCache = getFromCache(source);
 
 	var parsed = fromCache || Ractive$1.parse( source, Object.assign( {
@@ -1021,7 +1022,7 @@ function resolvePath ( relativePath, base ) {
   MIT License: https://github.com/guybedford/amd-loader/blob/master/LICENSE
 */
 
-var loader$1 = function loader$1(pluginId, ext, allowExts, compile) {
+var loader$1 = function loader$1(pluginId, ext, allowExts, compile, config) {
   if (arguments.length == 3) {
     compile = allowExts;
     allowExts = undefined;
@@ -1033,7 +1034,7 @@ var loader$1 = function loader$1(pluginId, ext, allowExts, compile) {
   return {
     buildCache: {},
     load: function load(name, req, _load, config) {
-      var path = req.toUrl(name);
+      var path = req.toUrl(name) + (config.versionSuffix ? config.versionSuffix : '');
       var queryString = '';
       if (path.indexOf('?') != -1) {
         queryString = path.substr(path.indexOf('?'));

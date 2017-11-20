@@ -1,0 +1,23 @@
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js"></script>
+</head>
+<body>
+  <main></main>
+  <script>
+
+  require.config({
+    paths: {
+      ractive: 'https://cdnjs.cloudflare.com/ajax/libs/ractive/0.9.0-build-39/ractive',
+      rvc: '../../dist/rvc'
+    },
+    versionSuffix: '_v123'
+  });
+
+  require([ 'rvc!foo' ], function ( Foo ) {
+    var ractive = new Foo({el: "main"});
+  });
+
+  </script>
+</body>
+</html>
