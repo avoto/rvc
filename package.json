@@ -18,6 +18,7 @@
   "author": "Rich Harris",
   "license": "MIT",
   "devDependencies": {
+    "babel-preset-es2015-rollup": "^3.0.0",
     "es6-promise": "^4.0.5",
     "eslint": "^3.12.2",
     "gobble": "^0.12.0",
@@ -25,14 +26,14 @@
     "gobble-cli": "^0.8.0",
     "gobble-rollup": "^0.36.0",
     "gobble-rollup-babel": "^0.6.1",
+    "gobble-uglifyjs": "^0.2.1",
     "mocha": "^3.2.0",
     "rcu": "../rcu",
     "requirejs": "2.3.2",
     "resolve": "1.2.0",
     "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-node-resolve":"2.1.1",
-    "rollup-plugin-commonjs":"8.2.6",
-    "babel-preset-es2015-rollup": "^3.0.0",
+    "rollup-plugin-commonjs": "8.2.6",
+    "rollup-plugin-node-resolve": "2.1.1",
     "tosource": "^1.0.0"
   },
   "dependencies": {

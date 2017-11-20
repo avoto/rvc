@@ -28,4 +28,5 @@ module.exports = gobble( 'src' )
 			format: 'amd',
 			moduleName: 'rvc',
 			external: [ 'ractive' ]
-	});
+	})
+	.transform('uglifyjs', {ext: '.min.js'});
