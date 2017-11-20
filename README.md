@@ -30,9 +30,11 @@ require.config({
   
   // provides support for versioned components loading 
   // a.k.a. foo_v123.html (must be supported by server)
+  // see sample2/test_versioning
   versionSuffix: '_v123',
   
   // define Ractive.defaults.data
+  // see sample2/test_datadefaults
   ractiveDefaultsData: {
       msg: function() {
           return 'I am available in each component.data!'
