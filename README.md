@@ -26,6 +26,17 @@ require.config({
   paths: {
     ractive: 'lib/ractive',
     rvc: 'plugins/rvc'
+  },
+  
+  // provides support for versioned components loading 
+  // a.k.a. foo_v123.html (must be supported by server)
+  versionSuffix: '_v123',
+  
+  // define Ractive.defaults.data
+  ractiveDefaultsData: {
+      msg: function() {
+          return 'I am available in each component.data!'
+      }
   }
 });
 ```
