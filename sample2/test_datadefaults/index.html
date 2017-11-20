@@ -7,11 +7,18 @@
   <script>
 
   require.config({
+
     paths: {
       ractive: 'https://cdnjs.cloudflare.com/ajax/libs/ractive/0.9.10/ractive',
       rvc: '../../dist/rvc'
     },
-    versionSuffix: '_v123'
+
+    ractiveDefaultsData:{
+        msg: function() {
+            return "Hello from defaults.data.msg()!"
+        }
+    }
+
   });
 
   require([ 'rvc!foo' ], function ( Foo ) {

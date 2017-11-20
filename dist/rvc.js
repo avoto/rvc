@@ -1408,15 +1408,24 @@ function build(name, source, callback) {
 	callback(builtModule);
 }
 
+if (requirejs && nestedPropertyExists(requirejs, ['s', 'contexts', '_', 'config', 'ractiveDefaultsData'])) {
+  Ractive.defaults.data = requirejs.s.contexts._.config.ractiveDefaultsData;
+}
+
 init(Ractive);
 
 var rvc = loader$1('rvc', 'html', function (name, source, req, callback, errback, config) {
-	if (config.isBuild) {
-		build(name, source, callback, errback);
-	} else {
-		load$1(name, req, source, callback, errback);
-	}
+  if (config.isBuild) {
+    build(name, source, callback, errback);
+  } else {
+    load$1(name, req, source, callback, errback);
+  }
 });
+
+function nestedPropertyExists(obj, props) {
+  var prop = props.shift();
+  return prop === undefined ? true : obj.hasOwnProperty(prop) ? nestedPropertyExists(obj[prop], props) : false;
+}
 
 return rvc;
 
