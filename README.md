@@ -25,7 +25,8 @@ First, RequireJS needs to be able to find `rvc.js` and `ractive.js`. Either it s
 require.config({
   paths: {
     ractive: 'lib/ractive',
-    rvc: 'plugins/rvc'
+    rvc: 'plugins/rvc',
+    ui: 'path/to/ractive_components'
   },
   
   // provides support for versioned components loading 
@@ -39,7 +40,13 @@ require.config({
       msg: function() {
           return 'I am available in each component.data!'
       }
-  }
+  },
+  
+  //provides default path for components
+  //when loaded via absolute url - eg 'rvc!/form/toggle.html'
+  
+  rvcRootPath : 'ui'
+  
 });
 ```
 
