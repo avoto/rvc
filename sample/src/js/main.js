@@ -2,7 +2,7 @@
 require.config({
 	// This tells RequireJS where to find Ractive and rvc
 	paths: {
-		ractive: 'lib/ractive-legacy',
+		ractive: 'lib/ractive.min',
 		rvc: 'loaders/rvc'
 	},
 
