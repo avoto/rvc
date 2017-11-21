@@ -1041,13 +1041,6 @@ var loader$1 = function loader$1(pluginId, ext, allowExts, compile, config) {
         path = path.substr(0, path.length - queryString.length);
       }
 
-      // var path = req.toUrl(name) + ( config.versionSuffix != undefined ? config.versionSuffix : '') ;
-      // var queryString = '';
-      // if (path.indexOf('?') != -1) {
-      //     queryString = path.substr(path.indexOf('?'));
-      //     path = path.substr(0, path.length - queryString.length);
-      // }
-
       // precompiled -> load from .ext.js extension
       if (config.precompiled instanceof Array) {
         for (var i = 0; i < config.precompiled.length; i++) {
