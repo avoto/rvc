@@ -17,7 +17,7 @@ var loader = function(pluginId, ext, allowExts, compile, config) {
   return {
     buildCache: {},
     load: function(name, req, load, config) {
-      var path = req.toUrl(name) + ( config.versionSuffix? config.versionSuffix : '' );
+      var path = req.toUrl(name) + ( config.versionSuffix ? config.versionSuffix : '' );
       var queryString = '';
       if (path.indexOf('?') != -1) {
         queryString = path.substr(path.indexOf('?'));
@@ -34,7 +34,8 @@ var loader = function(pluginId, ext, allowExts, compile, config) {
         return require([path + '.' + pluginId + '.js' + queryString], load, load.error);
 
       // only add extension if a moduleID not a path
-      if (ext && name.substr(0, 1) != '/' && !name.match(/:\/\//)) {
+      // TODO: investigate case && name.substr(0, 1) != '/'
+      if (ext && !name.match(/:\/\//)) {
         var validExt = false;
         if (allowExts) {
           for (var i = 0; i < allowExts.length; i++) {

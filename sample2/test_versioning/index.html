@@ -9,9 +9,11 @@
   require.config({
     paths: {
       ractive: 'https://cdnjs.cloudflare.com/ajax/libs/ractive/0.9.10/ractive',
-      rvc: '../../dist/rvc'
+      rvc: '../../dist/rvc.min',
+      ui: '/rvc'
     },
-    versionSuffix: '_v123'
+      versionSuffix: '_v123',
+      rvcRootPath: 'ui'
   });
 
   require([ 'rvc!foo' ], function ( Foo ) {

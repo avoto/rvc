@@ -1041,6 +1041,13 @@ var loader$1 = function loader$1(pluginId, ext, allowExts, compile, config) {
         path = path.substr(0, path.length - queryString.length);
       }
 
+      // var path = req.toUrl(name) + ( config.versionSuffix != undefined ? config.versionSuffix : '') ;
+      // var queryString = '';
+      // if (path.indexOf('?') != -1) {
+      //     queryString = path.substr(path.indexOf('?'));
+      //     path = path.substr(0, path.length - queryString.length);
+      // }
+
       // precompiled -> load from .ext.js extension
       if (config.precompiled instanceof Array) {
         for (var i = 0; i < config.precompiled.length; i++) {
@@ -1049,7 +1056,8 @@ var loader$1 = function loader$1(pluginId, ext, allowExts, compile, config) {
       } else if (config.precompiled === true) return require([path + '.' + pluginId + '.js' + queryString], _load, _load.error);
 
       // only add extension if a moduleID not a path
-      if (ext && name.substr(0, 1) != '/' && !name.match(/:\/\//)) {
+      // TODO: investigate case && name.substr(0, 1) != '/'
+      if (ext && !name.match(/:\/\//)) {
         var validExt = false;
         if (allowExts) {
           for (var i = 0; i < allowExts.length; i++) {
@@ -1198,11 +1206,29 @@ if (typeof window != 'undefined') {
   };
 }
 
+var requireconfig = function () {
+
+    if (requirejs && nestedPropertyExists(requirejs, ['s', 'contexts', '_', 'config'])) {
+        return requirejs.s.contexts._.config;
+    }
+    return {};
+};
+
+function nestedPropertyExists(obj, props) {
+    var prop = props.shift();
+    return prop === undefined ? true : obj.hasOwnProperty(prop) ? nestedPropertyExists(obj[prop], props) : false;
+}
+
 function load$1(base, req, source, callback, errback) {
+
 	make(source, {
 		url: base + '.html',
 		loadImport: function loadImport(name, path, baseUrl, callback) {
 			path = resolvePath(path, base);
+			var requireJsConfig = requireconfig();
+			if (path.charAt(0) === '/' && requireJsConfig.rvcRootPath) {
+				path = requireJsConfig.rvcRootPath + path;
+			}
 			req(['rvc!' + path.replace(/\.html$/, '')], callback);
 		},
 		loadModule: function loadModule(name, path, baseUrl, callback) {
@@ -1408,24 +1434,21 @@ function build(name, source, callback) {
 	callback(builtModule);
 }
 
-if (requirejs && nestedPropertyExists(requirejs, ['s', 'contexts', '_', 'config', 'ractiveDefaultsData'])) {
-  Ractive.defaults.data = requirejs.s.contexts._.config.ractiveDefaultsData;
+var requireJsConfig = requireconfig();
+
+if (requireJsConfig.ractiveDefaultsData) {
+	Ractive.defaults.data = requireJsConfig.ractiveDefaultsData;
 }
 
 init(Ractive);
 
 var rvc = loader$1('rvc', 'html', function (name, source, req, callback, errback, config) {
-  if (config.isBuild) {
-    build(name, source, callback, errback);
-  } else {
-    load$1(name, req, source, callback, errback);
-  }
+	if (config.isBuild) {
+		build(name, source, callback, errback);
+	} else {
+		load$1(name, req, source, callback, errback);
+	}
 });
-
-function nestedPropertyExists(obj, props) {
-  var prop = props.shift();
-  return prop === undefined ? true : obj.hasOwnProperty(prop) ? nestedPropertyExists(obj[prop], props) : false;
-}
 
 return rvc;
 
