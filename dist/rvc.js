@@ -689,14 +689,15 @@ function getLinePosition ( lines, char ) {
 
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 4;
+var CACHE_PREFIX = '_rcu_';
 
-function parse ( source, parseOptions, typeAttrs ) {
+function parse ( source, parseOptions, typeAttrs, identifier, versionSuffix ) {
 	if ( !Ractive$1 ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
 
-	var fromCache = getFromCache(source);
+	var fromCache = getFromCache(source, identifier);
 
 	var parsed = fromCache || Ractive$1.parse( source, Object.assign( {
 		noStringify: true,
@@ -704,7 +705,7 @@ function parse ( source, parseOptions, typeAttrs ) {
 	}, parseOptions || {}, { includeLinePositions: true } ) );
 
 	if (fromCache === undefined) {
-		registerCache(source, parsed);
+		registerCache(source, parsed, identifier, versionSuffix);
 	}
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
@@ -826,24 +827,44 @@ function checksum (s) {
 	return (chk & 0xffffffff).toString(16);
 }
 
-var CACHE_PREFIX = '_rcu_';
+var getCacheKey = function (identifier, checksum) {
+	return identifier ? CACHE_PREFIX + identifier : CACHE_PREFIX + checksum;
+};
 
-var registerCache = function (source, compiled) {
-	var checkSum = checksum(source);
-	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
-		window.localStorage.setItem(("" + CACHE_PREFIX + "" + checkSum), JSON.stringify(compiled));
+var prepareCacheEntry = function (compiled, checkSum, versionSuffix) {
+	return {
+		date: new Date(),
+		checkSum: checkSum,
+		data: compiled,
+		versionSuffix: versionSuffix
+	};
+};
+
+var registerCache = function (source, compiled, identifier, versionSuffix) {
+	try {
+		var checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			window.localStorage.setItem(getCacheKey(identifier, checkSum), JSON.stringify(prepareCacheEntry(compiled, checkSum, versionSuffix)));
+		}
+	} catch (e) {
+		//noop
 	}
 };
 
-function getFromCache (source) {
-	var checkSum = checksum(source);
-	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
-		var item = localStorage.getItem(("" + CACHE_PREFIX + "" + checkSum));
-		if (item) {
-			return JSON.parse(item);
-		} else {
-			return undefined;
+function getFromCache (source, identifier) {
+	try {
+		var checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			var item = localStorage.getItem(getCacheKey(identifier,checkSum));
+			if (item) {
+				var parsed = JSON.parse(item);
+				return parsed.checkSum === checkSum ? parsed.data : undefined;
+			} else {
+				return undefined;
+			}
 		}
+	} catch (e) {
+		//noop
 	}
 	return undefined;
 }
@@ -867,12 +888,13 @@ function make ( source, config, callback, errback ) {
 
 	// Implementation-specific config
 	var url        = config.url || '';
+	var versionSuffix = config.versionSuffix || '';
 	var loadImport = config.loadImport;
 	var loadModule = config.loadModule;
 	var parseOptions = config.parseOptions;
 	var typeAttrs = config.typeAttrs;
 
-	var definition = parse( source, parseOptions, typeAttrs );
+	var definition = parse( source, parseOptions, typeAttrs, url, versionSuffix );
 
 	var imports = {};
 
@@ -1212,10 +1234,11 @@ function nestedPropertyExists(obj, props) {
     return prop === undefined ? true : obj.hasOwnProperty(prop) ? nestedPropertyExists(obj[prop], props) : false;
 }
 
-function load$1(base, req, source, callback, errback) {
+function load$1(base, req, source, callback, errback, versionSuffix) {
 
 	make(source, {
 		url: base + '.html',
+		versionSuffix: versionSuffix,
 		loadImport: function loadImport(name, path, baseUrl, callback) {
 			path = resolvePath(path, base);
 			var requireJsConfig = requireconfig();
@@ -1439,7 +1462,7 @@ var rvc = loader$1('rvc', 'html', function (name, source, req, callback, errback
 	if (config.isBuild) {
 		build(name, source, callback, errback);
 	} else {
-		load$1(name, req, source, callback, errback);
+		load$1(name, req, source, callback, errback, config.versionSuffix);
 	}
 });
 

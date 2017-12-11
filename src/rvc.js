@@ -17,7 +17,7 @@ let rvc = amdLoader( 'rvc', 'html', ( name, source, req, callback, errback, conf
 	if ( config.isBuild ) {
 		build( name, source, callback, errback );
 	} else {
-		load( name, req, source, callback, errback );
+		load( name, req, source, callback, errback, config.versionSuffix );
 	}
 });
 

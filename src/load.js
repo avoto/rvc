@@ -1,10 +1,11 @@
 import * as rcu from 'rcu';
 import requireconfig from './utils/requirconfig';
 
-export default function load ( base, req, source, callback, errback ) {
+export default function load ( base, req, source, callback, errback, versionSuffix ) {
 
 	rcu.make( source, {
 		url: `${base}.html`,
+        versionSuffix: versionSuffix,
 		loadImport ( name, path, baseUrl, callback ) {
 			path = rcu.resolve( path, base );
             let requireJsConfig = requireconfig();
