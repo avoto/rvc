@@ -1,3 +1,11 @@
 <link rel="ractive" href="component/foo2.html">
 
 <foo2>Simple loader test</foo2>
+
+<script>
+    component.exports = {
+        oninit: function () {
+            console.log("Foo initialized")
+        }
+    }
+</script>

@@ -1,5 +1,9 @@
 # changelog
 
+## 0.6.4
+
+* Support for Ractive 0.10.0
+
 ## 0.4.0
 
 * Update `rcu` version
