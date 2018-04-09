@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "r": "0.0.5",
-    "ractive": "0.9.0-build-9"
+    "ractive": "0.10.0"
   },
   "scripts": {
     "build": "gobble build -f dist",
